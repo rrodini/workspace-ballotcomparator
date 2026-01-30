@@ -1,0 +1,30 @@
+package com.rodini;
+
+import org.eclipse.swt.*;
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.ole.win32.*;
+
+public class SWTMenuExample {
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("AcroPDF Test");
+        shell.setLayout(new FillLayout());
+        shell.setSize(800, 600);
+        shell.open();
+
+        OleFrame frame = new OleFrame(shell, SWT.NONE);
+
+        OleControlSite site =
+            new OleControlSite(frame, SWT.NONE, "AcroPDF.PDF.1");
+
+        site.doVerb(OLE.OLEIVERB_INPLACEACTIVATE);
+
+
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) display.sleep();
+        }
+        display.dispose();
+    }
+}

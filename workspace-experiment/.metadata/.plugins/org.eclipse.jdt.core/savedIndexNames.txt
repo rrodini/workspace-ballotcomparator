@@ -1,0 +1,15 @@
+INDEX VERSION 1.134+C:\Users\rrodi\Documents\BallotComparator\workspace-experiment\.metadata\.plugins\org.eclipse.jdt.core
+232301126.index
+383766521.index
+2205898358.index
+1293565700.index
+3785989861.index
+2981749990.index
+3036763388.index
+3425171550.index
+2999966935.index
+3413270776.index
+2322067014.index
+1079097384.index
+1865797976.index
+3346531653.index

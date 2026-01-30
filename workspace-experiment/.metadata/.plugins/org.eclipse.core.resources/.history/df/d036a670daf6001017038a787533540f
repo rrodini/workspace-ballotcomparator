@@ -1,0 +1,133 @@
+package com.rodini;
+
+import java.io.File;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.ole.win32.OLE;
+import org.eclipse.swt.ole.win32.OleClientSite;
+import org.eclipse.swt.ole.win32.OleFrame;
+//import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+//import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+
+public class SWTFullPrototype {
+	public static void main(String[] args) {
+		// Parent Composite
+		Display display = new Display();
+		Shell shell = new Shell(display);
+		shell.setSize(900, 700);
+//		shell.setLayout(new FillLayout());
+		
+		shell.setLayout(new GridLayout(1, false));
+
+		shell.setText("Full Prototype");
+		
+		Menu m = new Menu(shell, SWT.BAR);
+
+		// create a File menu and add an Exit item
+		final MenuItem file = new MenuItem(m, SWT.CASCADE);
+		file.setText("File");
+		final Menu filemenu = new Menu(shell, SWT.DROP_DOWN);
+		file.setMenu(filemenu);
+		final MenuItem openItem = new MenuItem(filemenu, SWT.PUSH);
+		openItem.setText("Open");
+		final MenuItem separator = new MenuItem(filemenu, SWT.SEPARATOR);
+		final MenuItem exitItem = new MenuItem(filemenu, SWT.PUSH);
+		exitItem.setText("Exit");
+
+		// create an Edit menu and add Cut, Copy, and Paste items
+		final MenuItem edit = new MenuItem(m, SWT.CASCADE);
+		edit.setText("Edit");
+		final Menu editmenu = new Menu(shell, SWT.DROP_DOWN);
+		edit.setMenu(editmenu);
+		final MenuItem cutItem = new MenuItem(editmenu, SWT.PUSH);
+		cutItem.setText("Cut");
+		final MenuItem copyItem = new MenuItem(editmenu, SWT.PUSH);
+		copyItem.setText("Copy");
+		final MenuItem pasteItem = new MenuItem(editmenu, SWT.PUSH);
+		pasteItem.setText("Paste");
+
+		shell.setMenuBar(m);
+
+		
+		
+		SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL); // Or SWT.VERTICAL
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		//
+		// Left Pane (e.g. Acrobat)
+		//
+		Composite left = new Composite(sashForm, SWT.BORDER);
+		left.setLayout(new FillLayout());
+        // Browser widget (uses WebView2 on modern Windows)
+        Browser browser = new Browser(left, SWT.NONE);
+
+        // Load a PDF file (local or remote)
+        browser.setUrl("file:///C|/Users/rrodi/Documents/BallotComparator/workspace-experiment/swt-launch-adobe-word/General-2025.pdf");
+        //                      C:\Users\rrodi\Documents\BallotComparator\workspace-experiment\swt-launch-adobe-word
+        //
+		// Right Pane (e.g., Word)
+        //
+		Composite right = new Composite(sashForm, SWT.BORDER);
+		right.setLayout(new FillLayout());
+        // Specify the path to your Word document
+        String documentPath = ".\\005_ATGLEN.docx"; // Use forward slashes or escaped backslashes
+        File documentFile = new File(documentPath);
+
+        if (!documentFile.exists()) {
+            System.err.println("Document not found: " + documentPath);
+            // Handle file not found error
+        } else {
+            try {
+                // 1. Create an OLE Frame, which is the container for the OLE object
+//                OleFrame frame = new OleFrame(shell, SWT.NONE);
+                OleFrame frame = new OleFrame(right, SWT.NONE);
+
+                // 2. Create an OleClientSite. The "Word.Document" program ID
+                // specifies that we want to embed a Word document.
+                OleClientSite clientSite = new OleClientSite(frame, SWT.NONE, "Word.Document", documentFile);
+                // 3. Activate the document in-place to make it visible and interactive.
+                clientSite.doVerb(OLE.OLEIVERB_INPLACEACTIVATE);
+            } catch (Exception e) {
+                System.err.println("Failed to embed Word document: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+		// Set initial sash weight (proportions)
+//		sashForm.setWeights(new int[] { 500, 500 }); // Left gets 20%, Right gets 80%
+
+		// The pagination bar attached to the same parent
+		PaginationBar bar = new PaginationBar(shell, SWT.NONE);
+		bar.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
+		bar.setTotalPages(25);
+
+		bar.setOnPageChange(page -> {
+		    System.out.println("User navigated to page: " + page);
+//		    refreshTable(page);
+		});
+
+        
+//		shell.pack();
+		shell.open();
+        shell.forceFocus();
+
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+		display.dispose();
+
+	}
+}

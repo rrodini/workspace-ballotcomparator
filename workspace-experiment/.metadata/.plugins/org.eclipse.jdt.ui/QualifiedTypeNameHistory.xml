@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="com.sun.jna.ptr.IntByReference"/>
+    <fullyQualifiedTypeName name="com.sun.jna.platform.win32.Kernel32"/>
+    <fullyQualifiedTypeName name="com.sun.jna.platform.win32.WinBase"/>
+    <fullyQualifiedTypeName name="org.eclipse.swt.custom.SashForm"/>
+    <fullyQualifiedTypeName name="org.eclipse.swt.layout.GridLayout"/>
+    <fullyQualifiedTypeName name="org.eclipse.swt.ole.win32.OleAutomation"/>
+    <fullyQualifiedTypeName name="org.eclipse.swt.ole.win32.Variant"/>
+</qualifiedTypeNameHistroy>

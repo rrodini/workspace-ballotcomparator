@@ -1,0 +1,79 @@
+package com.rodini;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.ole.win32.OleFrame;
+import org.eclipse.swt.ole.win32.OleClientSite;
+import org.eclipse.swt.ole.win32.OLE;
+
+import java.io.File;
+
+public class SWTLaunchWordRead {
+
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setLayout(new FillLayout());
+        shell.setText("Composite Example");
+        
+		Composite acroComp = new Composite (shell, SWT.BORDER);
+		acroComp.setLayout(new FillLayout(SWT.VERTICAL));
+
+		Composite wordComp = new Composite (shell, SWT.BORDER);
+		wordComp.setLayout(new FillLayout(SWT.VERTICAL));
+
+		
+        // Specify the path to your Word document
+        String documentPath = ".\\005_ATGLEN.docx"; // Use forward slashes or escaped backslashes
+        File documentFile = new File(documentPath);
+
+        if (!documentFile.exists()) {
+            System.err.println("Document not found: " + documentPath);
+            // Handle file not found error
+        } else {
+            try {
+                // 1. Create an OLE Frame, which is the container for the OLE object
+//                OleFrame frame = new OleFrame(shell, SWT.NONE);
+                OleFrame frame = new OleFrame(wordComp, SWT.NONE);
+
+                // 2. Create an OleClientSite. The "Word.Document" program ID
+                // specifies that we want to embed a Word document.
+                OleClientSite clientSite = new OleClientSite(frame, SWT.NONE, "Word.Document", documentFile);
+                // AcroExch.App   - Acrobat Application (the server)
+                // AcroExch.AVDoc - A document in the user interface
+                // AcroExch.PDDoc - Actual PDF document's data                       X
+                // AxAcroPDFLib.AxAcroPDF - Used for embedding PDF viewer controls in other applications.
+                //OleClientSite clientSite = new OleClientSite(frame, SWT.NONE, "AcroPDF.PDF", documentFile);
+                
+                // 3. Activate the document in-place to make it visible and interactive.
+                clientSite.doVerb(OLE.OLEIVERB_INPLACEACTIVATE);
+
+            } catch (Exception e) {
+                System.err.println("Failed to embed Word document: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        // Browser widget (uses WebView2 on modern Windows)
+        Browser browser = new Browser(acroComp, SWT.NONE);
+
+        // Load a PDF file (local or remote)
+//        browser.setUrl("file:///C|/Users/rrodi/Documents/BallotComparator/workspace-experiment/swt-launch-adobe/005_ATGLEN_VS.pdf");
+        browser.setUrl("file:///C|/Users/rrodi/Documents/BallotComparator/workspace-experiment/swt-launch-adobe-word/General-2025.pdf");
+
+        shell.open();
+
+
+		shell.pack ();
+
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        display.dispose();
+    }
+}

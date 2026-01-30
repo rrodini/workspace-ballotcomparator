@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="MyTargetPlatform">
+  <locations>
+    <!-- Define the source p2 repository -->
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <repository location="https://download.eclipse.org/nebula/updates/release/3.2.0"/>    
+      <!-- Specify the particular p2 artifacts here by their ID -->
+      <unit id="org.eclipse.nebula.widgets.pagination.feature.feature.group" version="1.0.0.202509131601"/>
+    </location>
+  </locations>
+</target>

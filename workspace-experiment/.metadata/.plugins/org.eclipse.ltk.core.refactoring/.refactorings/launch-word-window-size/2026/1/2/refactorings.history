@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;com.rodini.JNALaunchProcess&apos; to &apos;LaunchWordWindowSize&apos;&#x0D;&#x0A;- Original project: &apos;launch-word-window-size&apos;&#x0D;&#x0A;- Original element: &apos;com.rodini.JNALaunchProcess&apos;&#x0D;&#x0A;- Renamed element: &apos;com.rodini.LaunchWordWindowSize&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;JNALaunchProcess&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.rodini{JNALaunchProcess.java[JNALaunchProcess" matchStrategy="1" name="LaunchWordWindowSize" qualified="false" references="true" similarDeclarations="false" stamp="1767989948807" textual="false" version="1.0"/>
+</session>

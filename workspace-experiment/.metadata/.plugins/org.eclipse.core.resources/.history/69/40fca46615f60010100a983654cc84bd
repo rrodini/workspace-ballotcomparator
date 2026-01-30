@@ -1,0 +1,170 @@
+package com.rodini;
+
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef.HWND;
+import com.sun.jna.win32.W32APIOptions;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Event;
+
+import org.eclipse.swt.ole.win32.OleAutomation;
+import org.eclipse.swt.ole.win32.OleFrame;
+import org.eclipse.swt.ole.win32.Variant;
+
+public class SWTLaunchWordReadWrite {
+
+    // Minimal User32 interface for reparenting and resizing
+    public interface MyUser32 extends User32 {
+        MyUser32 INSTANCE = Native.load("user32", MyUser32.class, W32APIOptions.DEFAULT_OPTIONS);
+
+        HWND SetParent(HWND hWndChild, HWND hWndNewParent);
+        boolean MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, boolean bRepaint);
+        boolean IsWindow(HWND hWnd);
+        HWND FindWindow(String lpClassName, String lpWindowName);
+        HWND FindWindowEx(HWND hwndParent, HWND hwndChildAfter, String lpszClass, String lpszWindow);
+    }
+
+    public static void main(String[] args) {
+
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("Word Automation Host");
+        shell.setLayout(new FillLayout());
+        shell.setSize(1000, 800);
+
+        // Composite that will host Word's window
+        Composite wordHost = new Composite(shell, SWT.EMBEDDED);
+        wordHost.setLayout(new FillLayout());
+
+        shell.open();
+
+        // --- STEP 1: Start Word via automation ---
+        OleFrame frame = new OleFrame(wordHost, SWT.NONE);
+
+        // Create Word.Application as an automation server
+        OleAutomation app = new OleAutomation(frame, "Word.Application");
+
+        // Make Word visible
+        int[] visibleId = app.getIDsOfNames(new String[]{"Visible"});
+        app.setProperty(visibleId[0], new Variant(true));
+
+        // --- STEP 2: Open a document ---
+        int[] docsId = app.getIDsOfNames(new String[]{"Documents"});
+        Variant docsVariant = app.getProperty(docsId[0]);
+        OleAutomation docs = docsVariant.getAutomation();
+
+        int[] openId = docs.getIDsOfNames(new String[]{"Open"});
+        Variant[] openArgs = { new Variant("C:\\temp\\example.docx") };
+        docs.invoke(openId[0], openArgs);
+
+        // --- STEP 3: Get the main Word window handle (HWND) ---
+
+        // Word's main window class is usually "OpusApp"
+        // We may need to wait a bit for it to appear
+        HWND wordHwnd = null;
+        for (int i = 0; i < 50; i++) {
+            wordHwnd = MyUser32.INSTANCE.FindWindow("OpusApp", null);
+            if (wordHwnd != null && MyUser32.INSTANCE.IsWindow(wordHwnd)) {
+                break;
+            }
+            if (!display.readAndDispatch()) display.sleep();
+        }
+
+        if (wordHwnd == null) {
+            System.out.println("Could not find Word main window.");
+        } else {
+            System.out.println("Found Word HWND: " + wordHwnd);
+
+            // --- STEP 4: Reparent Word into our Composite ---
+
+            // Get the HWND of the SWT Composite
+            long hostHandle = wordHost.handle; // SWT handle is HWND on Windows
+            HWND hostHwnd = new HWND(new Pointer(hostHandle));
+
+            MyUser32.INSTANCE.SetParent(wordHwnd, hostHwnd);
+
+            // Initial sizing
+            Rectangle clientArea = wordHost.getClientArea();
+            MyUser32.INSTANCE.MoveWindow(
+                    wordHwnd,
+                    0,
+                    0,
+                    clientArea.width,
+                    clientArea.height,
+                    true
+            );
+
+            // --- STEP 5: Resize Word when the Composite resizes ---
+            wordHost.addListener(SWT.Resize, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    if (wordHwnd != null && MyUser32.INSTANCE.IsWindow(wordHwnd)) {
+                        Rectangle area = wordHost.getClientArea();
+                        MyUser32.INSTANCE.MoveWindow(
+                                wordHwnd,
+                                0,
+                                0,
+                                area.width,
+                                area.height,
+                                true
+                        );
+                    }
+                }
+            });
+
+            // --- STEP 6: Set up auto-save using ExecuteMso + Saved flag ---
+
+            // Get ActiveDocument
+            int[] activeDocId = app.getIDsOfNames(new String[]{"ActiveDocument"});
+            Variant activeDocVariant = app.getProperty(activeDocId[0]);
+            OleAutomation activeDoc = activeDocVariant.getAutomation();
+
+            // Saved property
+            int[] savedId = activeDoc.getIDsOfNames(new String[]{"Saved"});
+
+            // ExecuteMso
+            int[] execId = app.getIDsOfNames(new String[]{"ExecuteMso"});
+
+            display.timerExec(1000, new Runnable() {
+                @Override
+                public void run() {
+                    if (shell.isDisposed()) return;
+
+                    Variant savedVariant = activeDoc.getProperty(savedId[0]);
+                    boolean isSaved = savedVariant.getBoolean();
+
+                    if (!isSaved) {
+                        Variant[] args = { new Variant("FileSave") };
+                        app.invoke(execId[0], args);
+                        System.out.println("Auto-saved at " + System.currentTimeMillis());
+                    }
+
+                    display.timerExec(1000, this);
+                }
+            });
+        }
+
+        // --- Event loop ---
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) display.sleep();
+        }
+
+        // --- Cleanup: close Word ---
+        try {
+            int[] quitId = app.getIDsOfNames(new String[]{"Quit"});
+            app.invoke(quitId[0]);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        display.dispose();
+    }
+}

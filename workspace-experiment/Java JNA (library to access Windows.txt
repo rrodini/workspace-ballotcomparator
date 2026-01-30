@@ -1,0 +1,37 @@
+======================
+SWT Documentation Page
+======================
+https://eclipse.dev/eclipse/swt/docs.html
+
+SWT Javadoc
+https://help.eclipse.org/latest/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/api/org/eclipse/swt/package-summary.html
+
+O'Reilly for Higher Ed
+https://learningcommons.dccc.edu/az.php?a=o
+
+==================
+Pagination Control
+==================
+https://angelozerr.wordpress.com/2012/01/06/nebula_pagination/
+
+=====================================================================
+Google Search
+java jna launch win32 process example
+
+Adobe Acrobat OLE (google)
+adobe acrobat example open pdf via ole
+
+Launch Word on a specific file.
+you specifically need the process handle or more control over process creation, you can use the CreateProcess function. This requires you to find the full path to winword.exe and pass the document path as an argument in the command line string. This method is less flexible than ShellExecute (https://java-native-access.github.io/jna/5.18.1/javadoc/com/sun/jna/platform/win32/ShellAPI.SHELLEXECUTEINFO.html )because the path to Word can change.
+
+Win32 API reference
+https://learn.microsoft.com/en-us/windows/win32/api/
+
+=========
+Java JNA (library to access Windows APIs)
+=========
+JAVADOC v5.18.1
+https://java-native-access.github.io/jna/5.18.1/javadoc/
+
+GitHub Project
+https://github.com/java-native-access/jna?tab=readme-ov-file#readme

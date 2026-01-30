@@ -1,0 +1,193 @@
+package com.rodini;
+
+import java.io.File;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.ole.win32.OLE;
+import org.eclipse.swt.ole.win32.OleClientSite;
+import org.eclipse.swt.ole.win32.OleFrame;
+import org.eclipse.swt.ole.win32.OleAutomation;
+import org.eclipse.swt.ole.win32.Variant;
+//import org.eclipse.swt.layout.GridData;
+//import org.eclipse.swt.layout.GridLayout;
+//import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Label;
+
+public class SWTCompositeAcroWord {
+	public static void main(String[] args) {
+		// Parent Composite
+		final Display display = new Display();
+		Shell shell = new Shell(display);
+		shell.setSize(900, 700);
+		shell.setLayout(new FillLayout());
+		shell.setText("Composite Example");
+		SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL); // Or SWT.VERTICAL 
+		//
+		// Left Pane (e.g. Acrobat)
+		//
+		Composite left = new Composite(sashForm, SWT.BORDER);
+		left.setLayout(new FillLayout());
+        // Browser widget (uses WebView2 on modern Windows)
+        Browser browser = new Browser(left, SWT.NONE);
+
+        // Load a PDF file (local or remote)
+        browser.setUrl("file:///C|/Users/rrodi/Documents/BallotComparator/workspace-experiment/swt-launch-adobe-word/General-2025.pdf");
+        //                      C:\Users\rrodi\Documents\BallotComparator\workspace-experiment\swt-launch-adobe-word
+        //
+		// Right Pane (e.g., Word)
+        //
+		Composite right = new Composite(sashForm, SWT.BORDER);
+		right.setLayout(new FillLayout());
+        // Specify the path to your Word document
+        String documentPath = ".\\005_ATGLEN.docx"; // Use forward slashes or escaped backslashes
+        File documentFile = new File(documentPath);
+
+        if (!documentFile.exists()) {
+            System.err.println("Document not found: " + documentPath);
+            // Handle file not found error
+        } else {
+            try {
+                // 1. Create an OLE Frame, which is the container for the OLE object
+//                OleFrame frame = new OleFrame(shell, SWT.NONE);
+                OleFrame frame = new OleFrame(right, SWT.NONE);
+
+                // 2. Create an OleClientSite. The "Word.Document" program ID
+                // specifies that we want to embed a Word document.
+// old                OleClientSite clientSite = new OleClientSite(frame, SWT.NONE, "Word.Document", documentFile);
+                OleClientSite clientSite = new OleClientSite(frame, SWT.NONE, "Word.Document");
+                // 3. Activate the document in-place to make it visible and interactive.
+
+/* new */       clientSite.doVerb(OLE.OLEIVERB_SHOW);
+                clientSite.doVerb(OLE.OLEIVERB_INPLACEACTIVATE);
+/* new */                
+                for (int i = 0; i < 20; i++) {
+                    if (!display.readAndDispatch()) display.sleep();
+                }
+
+                // More steps in order to save changes.
+                OleAutomation automation = new OleAutomation(clientSite);
+                dumpOleNames(automation);
+             // Get the Application object
+             int[] appId = automation.getIDsOfNames(new String[] { "Application" });
+             if (appId == null) {
+            	    System.out.println("ERROR: Document has no Application property");
+            	    return;
+            	}
+             Variant appVariant = automation.getProperty(appId[0]);
+             if (appVariant == null || appVariant.getType() == OLE.VT_EMPTY) {
+            	    System.out.println("ERROR: Application property returned null");
+            	    return;
+            	}
+             OleAutomation app = appVariant.getAutomation();
+             dumpOleNames(app);
+             if (app == null) {
+            	    System.out.println("ERROR: Could not get Application automation");
+            	    return;
+             }
+
+             // Get Documents collection
+             int[] docsId = app.getIDsOfNames(new String[] { "Documents" });
+             if (appVariant == null || appVariant.getType() == OLE.VT_EMPTY) {
+            	    System.out.println("ERROR: Application property returned null");
+            	    return;
+            	}             
+             Variant docsVariant = app.getProperty(docsId[0]);
+             OleAutomation docs = docsVariant.getAutomation();
+
+             // Open your file
+             int[] openId = docs.getIDsOfNames(new String[] { "Open" });
+             Variant[] wordArgs = new Variant[] { new Variant(documentPath) };
+             docs.invoke(openId[0], wordArgs);
+
+          // --- Get ActiveDocument ---
+             int[] activeDocId = app.getIDsOfNames(new String[] { "ActiveDocument" });
+             Variant activeDocVariant = app.getProperty(activeDocId[0]);
+             OleAutomation activeDoc = activeDocVariant.getAutomation();
+
+             // --- Get the Saved property ID ---
+             int[] savedId = activeDoc.getIDsOfNames(new String[] { "Saved" });
+             if (savedId == null) {
+            	    System.out.println("ERROR: Saved property not found");
+            	    return;
+             }
+
+
+             // --- Get ExecuteMso ID for saving ---
+             int[] execId = app.getIDsOfNames(new String[] { "ExecuteMso" });
+             if (execId == null) {
+            	    System.out.println("ERROR: ExecuteMso not found");
+            	    return;
+             }
+
+             // --- Start polling for changes ---
+             Display frameDisplay = frame.getDisplay();
+
+             frameDisplay.timerExec(500, new Runnable() {
+                 public void run() {
+
+                     // Read the Saved flag (true = clean, false = dirty)
+                     Variant savedVariant = activeDoc.getProperty(savedId[0]);
+                     boolean isSaved = savedVariant.getBoolean();
+
+                     if (!isSaved) {
+                         // Document is dirty → trigger a save
+                         Variant[] args = { new Variant("FileSave") };
+                         app.invoke(execId[0], args);
+                     }
+
+                     // Continue polling
+                     frameDisplay.timerExec(500, this);
+                 }
+             });
+                
+            } catch (Exception e) {
+                System.err.println("Failed to embed Word document: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+		// Set initial sash weight (proportions)
+//		sashForm.setWeights(new int[] { 500, 500 }); // Left gets 20%, Right gets 80%
+
+		shell.open();
+
+//		shell.pack();
+
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+		display.dispose();
+
+	}
+	
+	public static void dumpOleNames(OleAutomation auto) {
+	    System.out.println("=== OLE Names Dump ===");
+	    if (auto == null) {
+	        System.out.println("OleAutomation is null");
+	        return;
+	    }
+
+	    int[] ids = auto.getIDsOfNames(new String[] { });
+	    if (ids == null || ids.length == 0) {
+	        System.out.println("No names found");
+	        return;
+	    }
+
+	    for (int id : ids) {
+	        String[] name = auto.getNames(id, 1);
+//	        String name = auto.getName(id);
+	        if (name != null && name.length > 0) {
+	            System.out.println("ID " + id + " → " + name[0]);
+	        }
+	    }
+	    System.out.println("======================");
+	}
+}

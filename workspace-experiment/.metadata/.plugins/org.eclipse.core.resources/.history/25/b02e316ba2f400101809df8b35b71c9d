@@ -1,0 +1,49 @@
+package com.rodini;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+//import org.eclipse.swt.layout.GridData;
+//import org.eclipse.swt.layout.GridLayout;
+//import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Label;
+
+public class SWTCompositeAcroWord {
+	public static void main(String[] args) {
+		// Parent Composite
+		Display display = new Display();
+		Shell shell = new Shell(display);
+		shell.setLayout(new FillLayout());
+		shell.setText("Composite Example");
+		SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL); // Or SWT.VERTICAL 
+
+		// Left Pane (e.g. Acrobat)
+		Composite left = new Composite(sashForm, SWT.BORDER);
+		left.setLayout(new FillLayout());
+		new Label(left, SWT.CENTER).setText("Left Pane");
+
+		// Right Pane (e.g., Word)
+		Composite right = new Composite(sashForm, SWT.BORDER);
+		right.setLayout(new FillLayout());
+		new Label(right, SWT.CENTER).setText("Right Pane");
+
+		// Set initial sash weight (proportions)
+		sashForm.setWeights(new int[] { 500, 500 }); // Left gets 20%, Right gets 80%
+
+		shell.setSize(600, 400);
+		shell.open();
+
+		shell.pack();
+
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+		display.dispose();
+
+	}
+}

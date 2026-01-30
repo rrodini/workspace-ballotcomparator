@@ -1,0 +1,132 @@
+package com.rodini;
+
+import org.eclipse.swt.*;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.ole.win32.*;
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.graphics.*;
+
+public class WordEmbedExample {
+
+    public static void main(String[] args) {
+
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("Embedded Word Example");
+        shell.setLayout(new FillLayout());
+        shell.setSize(900, 700);
+
+        // --- Create the OLE frame ---
+        OleFrame frame = new OleFrame(shell, SWT.NONE);
+
+        // --- STEP 1: Create the OLE site ---
+        OleClientSite site = null;
+        try {
+            site = new OleClientSite(frame, SWT.NONE, "Word.Document");
+        } catch (Exception e) {
+            System.out.println("Failed to create Word.Document OLE site");
+            e.printStackTrace();
+            return;
+        }
+
+        // --- STEP 2: Force full activation ---
+        site.doVerb(OLE.OLEIVERB_SHOW);
+        site.doVerb(OLE.OLEIVERB_INPLACEACTIVATE);
+
+        // --- STEP 3: Pump event loop to allow Word to finish activation ---
+        for (int i = 0; i < 20; i++) {
+            if (!display.readAndDispatch()) display.sleep();
+        }
+
+        // --- STEP 4: Retrieve Document automation ---
+        OleAutomation doc = new OleAutomation(site);
+        dumpOleNames(doc);
+
+        int[] appId = doc.getIDsOfNames(new String[]{"Application"});
+        if (appId == null) {
+            System.out.println("ERROR: Word not fully activated (Application not found)");
+            return;
+        }
+
+        Variant appVariant = doc.getProperty(appId[0]);
+        OleAutomation app = appVariant.getAutomation();
+        if (app == null) {
+            System.out.println("ERROR: Could not retrieve Application automation");
+            return;
+        }
+        dumpOleNames(app);
+        // --- STEP 5: Get Documents collection ---
+        int[] docsId = app.getIDsOfNames(new String[]{"Documents"});
+        Variant docsVariant = app.getProperty(docsId[0]);
+        OleAutomation docs = docsVariant.getAutomation();
+
+        // --- STEP 6: Open a real .docx file ---
+        int[] openId = docs.getIDsOfNames(new String[]{"Open"});
+        Variant[] openArgs = { new Variant("C:\\temp\\example.docx") };
+        docs.invoke(openId[0], openArgs);
+
+        // --- STEP 7: Retrieve ActiveDocument ---
+        int[] activeDocId = app.getIDsOfNames(new String[]{"ActiveDocument"});
+        Variant activeDocVariant = app.getProperty(activeDocId[0]);
+        OleAutomation activeDoc = activeDocVariant.getAutomation();
+
+        // --- STEP 8: Retrieve Saved property and ExecuteMso ---
+        int[] savedId = activeDoc.getIDsOfNames(new String[]{"Saved"});
+        int[] execId = app.getIDsOfNames(new String[]{"ExecuteMso"});
+
+        if (execId == null) {
+            System.out.println("ERROR: ExecuteMso not found on Application");
+            return;
+        }
+
+        // --- STEP 9: Poll for changes and auto-save ---
+        display.timerExec(500, new Runnable() {
+            public void run() {
+
+                Variant savedVariant = activeDoc.getProperty(savedId[0]);
+                boolean isSaved = savedVariant.getBoolean();
+
+                if (!isSaved) {
+                    // Document is dirty → trigger save
+                    Variant[] args = { new Variant("FileSave") };
+                    app.invoke(execId[0], args);
+                    System.out.println("Auto-saved at " + System.currentTimeMillis());
+                }
+
+                display.timerExec(500, this);
+            }
+        });
+
+        shell.open();
+
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) display.sleep();
+        }
+
+        display.dispose();
+    }
+    
+	public static void dumpOleNames(OleAutomation auto) {
+	    System.out.println("=== OLE Names Dump ===");
+	    if (auto == null) {
+	        System.out.println("OleAutomation is null");
+	        return;
+	    }
+
+	    int[] ids = auto.getIDsOfNames(new String[] { });
+	    if (ids == null || ids.length == 0) {
+	        System.out.println("No names found");
+	        return;
+	    }
+
+	    for (int id : ids) {
+	        String[] name = auto.getNames(id, 1);
+//	        String name = auto.getName(id);
+	        if (name != null && name.length > 0) {
+	            System.out.println("ID " + id + " → " + name[0]);
+	        }
+	    }
+	    System.out.println("======================");
+	}
+
+}

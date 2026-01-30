@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+    // Try loading pdf.js explicitly
+    const script = document.createElement('script');
+    script.src = '../build/pdf.js';
+    script.onload = () => {
+        document.body.innerHTML = '<h2>pdf.js loaded successfully</h2>';
+    };
+    script.onerror = () => {
+        document.body.innerHTML = '<h2 style="color:red">FAILED to load pdf.js</h2>';
+    };
+    document.body.appendChild(script);
+</script>
+</body>
+</html>

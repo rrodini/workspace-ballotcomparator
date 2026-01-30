@@ -1,0 +1,51 @@
+package com.rodini;
+
+import org.eclipse.swt.*;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.ole.win32.*;
+
+//import org.eclipse.swt.
+
+public class SWTPaginationExample {
+	public static void main(String[] args) {
+		Display display = new Display();
+		Shell shell = new Shell(display);
+		shell.setLayout(new GridLayout(1, false));
+
+		// Your table or viewer
+		Table table = new Table(shell, SWT.BORDER | SWT.FULL_SELECTION);
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		// The pagination bar attached to the same parent
+		PaginationBar bar = new PaginationBar(shell, SWT.NONE);
+		bar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		bar.setTotalPages(25);
+
+		bar.setOnPageChange(page -> {
+		    System.out.println("User navigated to page: " + page);
+//		    refreshTable(page);
+		});
+		shell.open();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch())
+				display.sleep();
+		}
+		display.dispose();
+	}
+	
+    private static void refreshTable(Table table, int page) {
+        table.removeAll();
+
+        int pageSize = 20;
+        int start = (page - 1) * pageSize;
+
+        for (int i = 0; i < pageSize; i++) {
+            TableItem item = new TableItem(table, SWT.NONE);
+            item.setText("Row " + (start + i + 1));
+        }
+    }
+
+}
