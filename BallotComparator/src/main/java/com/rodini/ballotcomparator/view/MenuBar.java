@@ -1,6 +1,11 @@
 /**
  * MenuBar builds the main menu bar and processes 
- * events generated from user interactions.
+ * events generated from the menu dialogs.
+ * 
+ * Notes: 
+ * - The File menu is frequently hidden by the PDF
+ *   browser view message. To see the File menu
+ *   the user must X out that message.
  */
 package com.rodini.ballotcomparator.view;
 
@@ -8,21 +13,24 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.io.File;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Event;
 
+import com.rodini.ballotcomparator.BallotComparator;
 import com.rodini.ballotcomparator.model.InitializeData;
 
 public class MenuBar {
+	private final static Logger logger = LogManager.getRootLogger();
+
 	private final Menu m;
-//	private String specimenPdfPath;
-//	private String docxFolderPath;
 	public static final int SPECIMEN_PDF_PATH_CHANGE = 5000;
-	public static final int DOCX_FOLDER_PATH_CHANGE  = 5001;
+	public static final int DOCX_FOLDER_PATH_CHANGE = 5001;
 
 	MenuBar(Shell shell) {
 		m = new Menu(shell, SWT.BAR);
@@ -45,12 +53,17 @@ public class MenuBar {
 		final MenuItem exitItem = new MenuItem(filemenu, SWT.PUSH);
 		exitItem.setText("Exit");
 		exitItem.addListener(SWT.Selection, event -> {
-			shell.close();
+			BallotComparator.shutdown();
 		});
 		shell.setMenuBar(m);
 	}
-
+	/**
+	 * pdfFileDialog is the menu event handler.
+	 * 
+	 * @param shell
+	 */
 	private void pdfFileDialog(Shell shell) {
+		logger.debug("pdfFileDialog started.");
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		dialog.setText("Open the VS specimen pdf");
 		dialog.setFilterExtensions(new String[] { "*.pdf" });
@@ -59,7 +72,7 @@ public class MenuBar {
 
 		String specimenPdfPath = dialog.open();
 		if (specimenPdfPath != null) {
-			System.out.println("specimen pdf: " + specimenPdfPath);
+			logger.debug("pdfFileDialog folder: " + specimenPdfPath);
 			InitializeData.updateSpecimenPdfPath(specimenPdfPath);
 		}
 	}
@@ -77,15 +90,20 @@ public class MenuBar {
 //			InitializeData.updateDocxFolderPath(docxFolderPath);
 //		}
 //	}
-
+	/**
+	 * docxFolderDialog is the menu event handler.
+	 * 
+	 * @param shell
+	 */
 	private void docxFolderDialog(Shell shell) {
+		logger.debug("docxFolderDialog started.");
 		DirectoryDialog dialog = new DirectoryDialog(shell);
 		dialog.setText("Open the docx folder e.g. chester-output");
 		String currentDirectory = new File("").getAbsolutePath();
 		dialog.setFilterPath(currentDirectory);
 		String dir = dialog.open();
 		if (dir != null) {
-			System.out.println("docx folder: " + dir);
+			logger.debug("docxFolderDialog folder: " + dir);
 			InitializeData.updateDocxFolderPath(dir);
 		}
 	}

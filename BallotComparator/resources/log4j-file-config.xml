@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" name="BallotComparator" packages="">
+  <Appenders>
+    <File name="BallotComparator" fileName="./logs/ballotcomparator.log">
+      <PatternLayout pattern="%-5level %c{1}:%M:%L - %msg%n"/>
+	  <Append>false</Append>		
+    </File>
+  </Appenders>
+  <Loggers>
+    <Root level="DEBUG">
+      <AppenderRef ref="BallotComparator"/>
+    </Root>
+    <Logger name="com.rodini.ballotcomparator"></Logger>
+    <Logger name="com.rodini.ballotcomparator.view"></Logger> 
+    <Logger name="com.rodini.ballotcomparator.model"></Logger>
+  </Loggers>
+</Configuration>

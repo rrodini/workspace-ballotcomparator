@@ -11,22 +11,31 @@
  */
 package com.rodini.ballotcomparator;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.rodini.ballotcomparator.view.InitializeUI;
 import com.rodini.ballotcomparator.model.InitializeData;
+import com.rodini.ballotcomparator.view.InitializeUI;
 
 public class BallotComparator {
+	private final static Logger logger = LogManager.getRootLogger();
 	// Display acts are the Windows application.
 	final static Display display = new Display();
 	// Shell acts as the main window.
 	final static Shell shell = new Shell(display);
-
+	/**
+	 * main is the starting point. It is typical of SWT applications.
+	 * 
+	 * @param args not used.
+	 */
 	public static void main(String[] args) {
-		System.out.printf("SWT version: %d%n", SWT.getVersion());
+		Utils.logAppTimeStamp(logger, "started");
+		int swtVersion =  SWT.getVersion();
+		logger.debug("BallotComparator SWT version: " + swtVersion);
 		// Some controller stuff here...
 		shell.setSize(900, 700);
 		
@@ -42,6 +51,7 @@ public class BallotComparator {
 		// Update the properties file.
 		InitializeData.term();
 		display.dispose();
+		Utils.logAppTimeStamp(logger, "terminated");
 	}
 	
 	public static void shutdown() {
@@ -50,7 +60,6 @@ public class BallotComparator {
 	            shell.close();
 	        }
 	    } catch (Exception e) {
-//	        e.printStackTrace();
 	    }
 
 	    try {
@@ -58,8 +67,8 @@ public class BallotComparator {
 	            display.dispose();
 	        }
 	    } catch (Exception e) {
-//	        e.printStackTrace();
 	    }
+		Utils.logAppTimeStamp(logger, "terminated");
 	}
 	
 

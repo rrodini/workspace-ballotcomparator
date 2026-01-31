@@ -6,12 +6,16 @@
  * 
  *  Notes:
  *  - Usually there are usually 231 docx files (or rows in this case)
+ *  - Code was generated (or stolen) by MS Copilot.
  */
 
 package com.rodini.ballotcomparator.view;
 
 import java.io.IOException;
 import java.util.function.Consumer;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -20,10 +24,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.rodini.ballotcomparator.model.BallotDocx;
 import com.rodini.ballotcomparator.model.InitializeData;
 
 public class PaginationBar extends Composite {
+	private final static Logger logger = LogManager.getLogger();
 
     private int currentPage = 1;
     private int totalPages = 1;
@@ -99,7 +103,7 @@ public class PaginationBar extends Composite {
         edit.setLayout(editLayout); 
         Button btnEdit = new Button(edit, SWT.PUSH);
         btnEdit.setText("Edit");
-        btnEdit.addListener(SWT.Selection, e -> editDoc(currentPage));
+        btnEdit.addListener(SWT.Selection, e -> editDocx(currentPage));
     }
 
     private void updateControls() {
@@ -121,16 +125,23 @@ public class PaginationBar extends Composite {
             onPageChange.accept(currentPage);
         }
     }
-
-    private void editDoc(int page) {    	
+    /**
+     * editDoc is the event handler for Edit button. Basically,
+     * it activates the full version of MS Word via its
+     * file association with .docx files.
+     * @param page
+     */
+    private void editDocx(int page) {  
+    	logger.info(String.format("Edit docx w/ index: %d%n", page));
     	System.out.printf("Edit docx w/ index: %d%n", page);
     	String docxFilePath = InitializeData.bdocx.getFilePath();
-    	// Launch word as separate process using file association with .docx.     
+    	// Launch word as separate process using file association with .docx.
+    	logger.info(String.format("Edit docx w/ path: %s%n", docxFilePath));
     	ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c", "start", "\"\"", docxFilePath);
     	try {
 			pb.start();
 		} catch (IOException e) {
-			System.out.printf("MS Word launch failed: %s%n", e.getMessage());
+	    	logger.error(String.format("Edit docx failed: %s%n", e.getMessage()));
 		}
     }
     // ---------------------------
