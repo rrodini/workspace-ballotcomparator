@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Label;
 import com.rodini.ballotcomparator.model.InitializeData;
 
 public class PaginationBar extends Composite {
-	private final static Logger logger = LogManager.getLogger();
+	private final static Logger logger = LogManager.getLogger(PaginationBar.class);
 
     private int currentPage = 1;
     private int totalPages = 1;
@@ -45,6 +45,7 @@ public class PaginationBar extends Composite {
         super(parent, style);
         createControls();
         updateControls();
+        logger.debug("PaginationBar created.");
     }
 
     private void createControls() {
@@ -132,16 +133,15 @@ public class PaginationBar extends Composite {
      * @param page
      */
     private void editDocx(int page) {  
-    	logger.info(String.format("Edit docx w/ index: %d%n", page));
-    	System.out.printf("Edit docx w/ index: %d%n", page);
     	String docxFilePath = InitializeData.bdocx.getFilePath();
     	// Launch word as separate process using file association with .docx.
-    	logger.info(String.format("Edit docx w/ path: %s%n", docxFilePath));
+    	logger.info(String.format("Edit docx w/ index: %d name: %s%n", page, docxFilePath));
     	ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c", "start", "\"\"", docxFilePath);
     	try {
 			pb.start();
 		} catch (IOException e) {
-	    	logger.error(String.format("Edit docx failed: %s%n", e.getMessage()));
+			InitializeUI.displayMessage("Launch of MS Word for editing failed.");
+			logger.error(String.format("Edit docx failed: %s%n", e.getMessage()));
 		}
     }
     // ---------------------------

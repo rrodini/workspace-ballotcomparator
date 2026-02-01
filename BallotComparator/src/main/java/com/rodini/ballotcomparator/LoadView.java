@@ -3,15 +3,15 @@ package com.rodini.ballotcomparator;
 import org.eclipse.swt.widgets.Composite;
 
 import com.rodini.ballotcomparator.view.CompareView;
-import com.rodini.ballotcomparator.Views;
+import com.rodini.ballotcomparator.VIEWS;
 
 public abstract class LoadView {
 	
 	protected CompareView views;
 	protected Composite myView;		
-	protected Views which;	
+	protected VIEWS which;	
 
-	public LoadView(CompareView views, Views which) {
+	public LoadView(CompareView views, VIEWS which) {
 		this.views = views;
 		this.which = which;
 		myView = getPreferredView();		

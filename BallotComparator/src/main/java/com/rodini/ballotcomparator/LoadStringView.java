@@ -17,7 +17,7 @@ import com.rodini.ballotcomparator.view.CompareView;
 public class LoadStringView extends LoadView {
 	
 
-	public LoadStringView(CompareView views, Views which) {
+	public LoadStringView(CompareView views, VIEWS which) {
 		super(views, which);
 	}
 

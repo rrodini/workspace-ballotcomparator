@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.rodini.ballotcomparator.model.InitializeData;
 
 public class InitializeUI {
-	private final static Logger logger = LogManager.getRootLogger();
+	private final static Logger logger = LogManager.getLogger(InitializeUI.class);
 
 	private static CompareView compView;
 	private static PaginationBar bar;
@@ -39,7 +39,7 @@ public class InitializeUI {
 	 * @param shell SWT Shell object.
 	 */
 	public static void init(Shell shell) {
-		logger.debug("Enter InitializeUI.init");
+		logger.debug("Enter init");
 		InitializeUI.shell = shell;
 		shell.setLayout(new GridLayout(1, false));
 		// Set title bar element.

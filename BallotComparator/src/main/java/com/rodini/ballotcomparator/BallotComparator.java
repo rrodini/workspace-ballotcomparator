@@ -2,8 +2,8 @@
  * BallotComparator is a Windows based utility for the preparers 
  * of the Chester County Democratic Sample Ballots.  It opens two
  * "views" - one on the Voter Services specimen PDF (which contains
- * all 231 ballots in one pdf, and the output docx files from the
- * BallotGen program. This facilitates rapid validation of the 
+ * all 231 ballots in one pdf), and one on the output docx files from the
+ * BallotGen program. This facilitates visual inspection of the 
  * Democratic sample ballots.
  * 
  * Notes:

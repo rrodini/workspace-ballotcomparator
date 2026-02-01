@@ -15,12 +15,12 @@ public class Utils {
 	
 	/**
 	 * timeStamp generates a simple, formatted time stamp.
-	 * @return
+	 * @return Example: Jan. 31, 2026, 10:06am.
 	 */
 	public static String timeStamp() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM. dd, yyyy hh:mma");
-        String formatted = now.format(formatter).toLowerCase(); // optional lowercase for "am"/"pm"
+        String formatted = now.format(formatter);
         return formatted;
 	}
 	/**
@@ -28,9 +28,15 @@ public class Utils {
 	 * BallotComparator: event: start at: Jan. 31, 2026 09:54am
 	 * 
 	 * @param logger of the caller.
-	 * @param event "started", "blew up", "terminated", etc.
+	 * @param msg "started", "blew up", "terminated", etc.
 	 */
-	public static void logAppTimeStamp(Logger logger, String event) {
-		logger.info(String.format("%s: event: %s at: %s%n", InitializeUI.APPLICATION_NAME, event, timeStamp()));
+	public static void logAppTimeStamp(Logger logger, String msg) {
+		logger.info(String.format("%s: %s at: %s", InitializeUI.APPLICATION_NAME, msg, timeStamp()));
+	}
+	
+	public static void fatalError(Logger logger, String msg) {
+		InitializeUI.displayMessage(msg);
+		logger.error(msg);
+		BallotComparator.shutdown();
 	}
 }

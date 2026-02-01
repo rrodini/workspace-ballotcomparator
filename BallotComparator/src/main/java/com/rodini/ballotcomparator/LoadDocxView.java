@@ -1,11 +1,11 @@
 package com.rodini.ballotcomparator;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.internal.win32.OS;
-import org.eclipse.swt.widgets.Composite;
 //import org.eclipse.swt.widgets.Control;
 //import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.ole.win32.OLE;
@@ -13,22 +13,24 @@ import org.eclipse.swt.ole.win32.OleClientSite;
 import org.eclipse.swt.ole.win32.OleFrame;
 //import org.eclipse.swt.internal.win32.SWTFlags;
 
-
 import com.rodini.ballotcomparator.view.CompareView;
+import com.rodini.ballotcomparator.view.InitializeUI;
 
 public class LoadDocxView extends LoadView {
-	// frame must be reused between Word files.
+	private Logger logger = LogManager.getLogger(LoadDocxView.class);
+	// MS Copilot suggests reusing 
+	// frame object between Word files.
 	private static OleFrame frame;
+	// Same for the sit object;
 	private static OleClientSite site;
 
-	public LoadDocxView(CompareView views, Views which) {
+	public LoadDocxView(CompareView views, VIEWS which) {
 		super(views, which);
 		if (frame == null || frame.isDisposed()) {
 			// Create single instance.
 			frame = new OleFrame(getMyView(), SWT.NONE);
-			System.out.println("OleFrame created.");
 			getMyView().layout(true, true);
-
+			logger.debug("OleFrame created.");
 		}
 	}
 
@@ -40,17 +42,16 @@ public class LoadDocxView extends LoadView {
 	        site.doVerb(OLE.OLEIVERB_HIDE);
 			site.deactivateInPlaceClient();
 			site.dispose();
+			logger.debug("Site hidden/deactivated/disposed");
 		}
-		System.out.printf("LoadDoxcView::load(%s)%n", docxFilePath);
 		try {
 			// Create a new client site.
 			site = new OleClientSite(frame, SWT.NONE, "Word.Document", new File(docxFilePath));
 			// Activate the document in-place to make it visible and interactive.
 			site.doVerb(OLE.OLEIVERB_INPLACEACTIVATE);
-			System.out.printf("OleSite activated%n");
+			logger.debug("New site created and activated.");
 		} catch (Exception e) {
-            System.err.println("Failed to embed Word document: " + e.getMessage());
-			e.printStackTrace();
+			InitializeUI.displayMessage("Failed to embed Word document: " + e.getMessage());
 		}
 	}
 

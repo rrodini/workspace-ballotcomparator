@@ -26,7 +26,7 @@ import com.rodini.ballotcomparator.BallotComparator;
 import com.rodini.ballotcomparator.model.InitializeData;
 
 public class MenuBar {
-	private final static Logger logger = LogManager.getRootLogger();
+	private final static Logger logger = LogManager.getLogger(MenuBar.class);
 
 	private final Menu m;
 	public static final int SPECIMEN_PDF_PATH_CHANGE = 5000;

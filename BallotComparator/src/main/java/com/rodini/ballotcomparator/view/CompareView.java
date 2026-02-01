@@ -10,6 +10,10 @@
  */
 package com.rodini.ballotcomparator.view;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FillLayout;
@@ -18,6 +22,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
 public class CompareView {
+	private final static Logger logger = LogManager.getLogger(CompareView.class);
+	
 	private final SashForm sashForm;
 	private Composite leftView;
 	private Composite rightView;
@@ -39,7 +45,8 @@ public class CompareView {
 		// Right View (e.g., Word)
         //
 		rightView = new Composite(sashForm, SWT.BORDER);
-		rightView.setLayout(new FillLayout());	
+		rightView.setLayout(new FillLayout());
+		logger.debug("CompareView created.");
 	}
 	/**
 	 * Get the left view Composite object.

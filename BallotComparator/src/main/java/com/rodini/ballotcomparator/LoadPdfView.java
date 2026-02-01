@@ -17,7 +17,7 @@ public class LoadPdfView extends LoadView {
 //	private static String fileQueryKey = "?file=";
 	private static Browser browser;
 
-	public LoadPdfView(CompareView views, Views which) {
+	public LoadPdfView(CompareView views, VIEWS which) {
 		super(views, which);
 		if (browser == null) {
 			// Create a single instance.
