@@ -97,12 +97,12 @@ public class InitializeUI {
 	/**
 	 * Display a modal Message Box.  Currently only used for errors.
 	 * 
-	 * @param msg - Error message.
+	 * @param msg - message.
 	 */
 	public static void displayMessage(String msg) {
-		MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-		mb.setText(String.format("%s - %s%n", APPLICATION_NAME, "ERROR"));
-		mb.setMessage("msg");
+		MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+		mb.setText(String.format("%s%n", APPLICATION_NAME));
+		mb.setMessage(msg);
 		mb.open();
 	}
 }

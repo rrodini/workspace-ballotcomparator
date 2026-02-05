@@ -14,8 +14,15 @@ import org.eclipse.swt.ole.win32.OleFrame;
 //import org.eclipse.swt.internal.win32.SWTFlags;
 
 import com.rodini.ballotcomparator.view.CompareView;
-import com.rodini.ballotcomparator.view.InitializeUI;
-
+/**
+ * LoadDocxView displays the current docx file into view.
+ * 
+ * Notes:
+ * - Technique is based on MS Object Linking and Embedding (OLE) APIs
+ * - Much effort was put into getting Word to save the file following
+ *   edits. Could not get it to work.  Alternative, it the Edit
+ *   button in the bottom right corner of the status bar.
+ */
 public class LoadDocxView extends LoadView {
 	private Logger logger = LogManager.getLogger(LoadDocxView.class);
 	// MS Copilot suggests reusing 
@@ -51,7 +58,7 @@ public class LoadDocxView extends LoadView {
 			site.doVerb(OLE.OLEIVERB_INPLACEACTIVATE);
 			logger.debug("New site created and activated.");
 		} catch (Exception e) {
-			InitializeUI.displayMessage("Failed to embed Word document: " + e.getMessage());
+			Utils.fatalError(logger, "Failed to embed Word document: " + e.getMessage());
 		}
 	}
 

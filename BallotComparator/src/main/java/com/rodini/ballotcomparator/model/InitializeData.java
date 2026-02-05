@@ -60,10 +60,13 @@ public class InitializeData {
 		spdf = null;
 		String specimenPdfPath = props.getProperty(PROP_SPECIMEN_PDF_PATH);
 		// read the properties file	
-		if (specimenPdfPath == null || ! new File(specimenPdfPath).exists()) {
-			InitializeUI.displayMessage(String.format(specimenPdfPath, "Bad %s value: %s%n", PROP_SPECIMEN_PDF_PATH, specimenPdfPath));
+		if (specimenPdfPath == null) {
+			// Message box is commented out so user can see application first.
+			// InitializeUI.displayMessage(String.format("Use File menu and naviage to the specimen PDF."));
+		} else if (! new File(specimenPdfPath).exists()) {
+			InitializeUI.displayMessage(String.format("Bad %s value: %s.", PROP_SPECIMEN_PDF_PATH, specimenPdfPath));
 		} else {
-			logger.info(String.format("%s value: %s%n", PROP_SPECIMEN_PDF_PATH, specimenPdfPath));
+			logger.info(String.format("%s value: %s.", PROP_SPECIMEN_PDF_PATH, specimenPdfPath));
 			spdf = new SpecimenPdf(specimenPdfPath);
 		}
 	}
@@ -75,25 +78,31 @@ public class InitializeData {
 		bdocx = null;
 		String docxFolderPath = props.getProperty(PROP_DOCX_FOLDER_PATH);
 		File dirPath = null;
-		// read the properties file	
-		if (docxFolderPath != null) {
-			dirPath = new File(docxFolderPath);
-		}
-		if (docxFolderPath == null || !dirPath.exists() || ! dirPath.isDirectory() ) {
-			InitializeUI.displayMessage(String.format(docxFolderPath, "Bad %s value: %s%n", PROP_SPECIMEN_PDF_PATH, docxFolderPath));
+		// read the properties file
+		if (docxFolderPath == null) {
+			// Message box is commented out so user can see application first.
+			//InitializeUI.displayMessage(String.format("Use File menu and naviage to the sample ballot DOCX folder."));
 		} else {
-			logger.info(String.format("%s value: %s%n", PROP_DOCX_FOLDER_PATH, docxFolderPath));
-			bdocx = new BallotDocx(docxFolderPath);
-			String docxIndex = props.getProperty(PROP_DOCX_INDEX);
-			try {
-				int index = Integer.valueOf(docxIndex);
-				bdocx.setIndex(index);
-			} catch (NumberFormatException e) {
-				logger.info(String.format("Bad %s value: %s%n", PROP_DOCX_INDEX, docxIndex));
-				bdocx.setIndex(1);
+			dirPath = new File(docxFolderPath);
+
+			if (!dirPath.exists() || !dirPath.isDirectory()) {
+				InitializeUI.displayMessage(
+						String.format(docxFolderPath, "Bad %s value: %s.", PROP_SPECIMEN_PDF_PATH, docxFolderPath));
+			} else {
+				logger.info(String.format("%s value: %s.", PROP_DOCX_FOLDER_PATH, docxFolderPath));
+				bdocx = new BallotDocx(docxFolderPath);
+				String docxIndex = props.getProperty(PROP_DOCX_INDEX);
+				try {
+					int index = Integer.valueOf(docxIndex);
+					bdocx.setIndex(index);
+				} catch (NumberFormatException e) {
+					logger.info(String.format("Bad %s value: %s.", PROP_DOCX_INDEX, docxIndex));
+					bdocx.setIndex(1);
+				}
 			}
 		}
 	}
+
 	/**
 	 * updateSpecimenPdfPath is the event handler for change to PROP_SPECIMEN_PDF_PATH.
 	 * @param path
@@ -128,7 +137,9 @@ public class InitializeData {
 		logger.info("Writing props file: " + propFilePath);
 		// Write out the properties file.
 		try (FileWriter out = new FileWriter(new File(propFilePath))) {
-			updateDocxIndex(bdocx.getIndex());
+			if (bdocx != null) {
+				updateDocxIndex(bdocx.getIndex());				
+			}
 		    props.store(out, null);
 		} catch (IOException e) {
 			// fatal error

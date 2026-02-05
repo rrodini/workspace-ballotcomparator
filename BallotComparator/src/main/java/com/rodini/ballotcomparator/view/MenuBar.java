@@ -40,15 +40,20 @@ public class MenuBar {
 		final Menu filemenu = new Menu(shell, SWT.DROP_DOWN);
 		file.setMenu(filemenu);
 		final MenuItem openPdfItem = new MenuItem(filemenu, SWT.PUSH);
-		openPdfItem.setText("Open VS Specimen PDF");
+		openPdfItem.setText("Open VS Specimen PDF...");
 		openPdfItem.addListener(SWT.Selection, event -> {
 			pdfFileDialog(shell);
 		});
 		final MenuItem openDocxFolderItem = new MenuItem(filemenu, SWT.PUSH);
-		openDocxFolderItem.setText("Open DOCX folder");
+		openDocxFolderItem.setText("Open DOCX folder...");
 		openDocxFolderItem.addListener(SWT.Selection, event -> {
 			docxFolderDialog(shell);
 		});
+		final MenuItem aboutItem = new MenuItem(filemenu, SWT.PUSH);
+		aboutItem.setText("About");
+		aboutItem.addListener(SWT.Selection, event -> {
+			aboutDialog(shell);
+		});		
 		final MenuItem separator = new MenuItem(filemenu, SWT.SEPARATOR);
 		final MenuItem exitItem = new MenuItem(filemenu, SWT.PUSH);
 		exitItem.setText("Exit");
@@ -106,6 +111,12 @@ public class MenuBar {
 			logger.debug("docxFolderDialog folder: " + dir);
 			InitializeData.updateDocxFolderPath(dir);
 		}
+	}
+	
+	private void aboutDialog(Shell shell) {
+		logger.debug("aboutDialog started.");
+		AboutDialog dialog = new AboutDialog(shell);
+		dialog.open();
 	}
 
 }

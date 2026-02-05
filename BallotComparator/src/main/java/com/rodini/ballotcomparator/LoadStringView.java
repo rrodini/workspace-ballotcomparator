@@ -22,7 +22,6 @@ public class LoadStringView extends LoadView {
 	}
 
 	public void load(String string) {
-//		System.out.printf("LoadStringView:load(%s, %s)%n", which, string);
 		Composite view = getMyView();
 		// Remove old content.
 	    for (Control child : view.getChildren()) {

@@ -1,5 +1,8 @@
 package com.rodini.ballotcomparator;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,9 +12,17 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
 
 import com.rodini.ballotcomparator.view.CompareView;
-
+/**
+ * LoadPdfView displays the current specimen PDF into the view.
+ * 
+ * Notes:
+ * - Much effort was put into loading the Acrobat reader using OLE
+ *   APIs (like MS Word). Could not get it to work. Copilor suggested
+ *   using SWT's (Chrome's) browser with its built in PDF reader.
+ */
 public class LoadPdfView extends LoadView {
-//	private static String viewPage = new File("resources/pdfjs/web/viewer.html").getAbsolutePath().replace("\\","/");
+	private Logger logger = LogManager.getLogger(LoadPdfView.class);
+	//	private static String viewPage = new File("resources/pdfjs/web/viewer.html").getAbsolutePath().replace("\\","/");
 //	private static String FILE_PROTOCOL = "file:///";
 //	private static String HTTP_PROTOCOL = "http://";
 //	private static String fileQueryKey = "?file=";
@@ -22,16 +33,18 @@ public class LoadPdfView extends LoadView {
 		if (browser == null) {
 			// Create a single instance.
 			browser = new Browser(myView, SWT.NONE);
-			System.out.println("PDF browser created.");
+			logger.debug("PDF browser created.");
 		}
 	}
 
 //	@Override
 	public void load(String pdfPath) {
 		Composite view = myView;
-		// Simplicity - no tracking of PDF page. 
-		  browser.setUrl(filePathToFileUrl(pdfPath));
-	      view.layout(true, true);
+		// Simplicity - no tracking of PDF page. Copilot states
+		// that this requires a local HTTP server so that the PDF
+    	// uri can be referenced w/o a CORS error.
+		browser.setUrl(filePathToFileUrl(pdfPath));
+	    view.layout(true, true);
 
 // Complexity - the Chrome browser's CORS polity prevents below from working.
 // NEED TO URL ENCODE QUERY STRING
@@ -51,26 +64,29 @@ public class LoadPdfView extends LoadView {
 //      browser.setUrl(urlComplete);
 //      view.layout(true, true);
 	}
-
+	/**
+	 * filePathToFileUrl converts an absolute file path to a URI. The string
+	 * value of the URI is returned.
+	 * @param filePath abs. file path to PDF.
+	 * @return URI of file path.
+	 */
 	private String filePathToFileUrl(String filePath) {
         //  Example:
 		//  input:  C:\Users\rrodi\Documents\BallotComparator\workspace-experiment\swt-launch-adobe-word\General-2025.pdf
-        //  putput: file:///C:/Users/rrodi/Documents/BallotComparator/workspace-experiment/swt-launch-adobe-word/General-2025.pdf
-		System.out.printf("filePathToFileUrl: input: %s%n", filePath);
+        //  output: file:///C:/Users/rrodi/Documents/BallotComparator/workspace-experiment/swt-launch-adobe-word/General-2025.pdf
 		try {
 			Path path = Paths.get(filePath);
 			// Ensure the path is absolute; otherwise, this may lead to unexpected results.
 			if (!path.isAbsolute()) {
-				System.out.println("Error: Path is not absolute.");
+				Utils.fatalError(logger, String.format("path is not absolute: %s", filePath));
 				return null;
 			}
 			URI correctUri = path.toFile().toURI();
 			String uriString = correctUri.toString();
-			System.out.printf("filePathToFileUrl: output: %s%n", uriString);
 			return uriString;
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			Utils.fatalError(logger, String.format("cannot convert to URI: %s", e.getMessage()));
 		}
 		return "";
 	}
