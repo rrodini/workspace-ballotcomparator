@@ -49,8 +49,8 @@ public class BallotComparator {
 			}
 		}
 		// Update the properties file.
-		InitializeData.term();
-		display.dispose();
+//		InitializeData.term();
+//		display.dispose();
 		Utils.logAppTimeStamp(logger, "terminated");
 	}
 	

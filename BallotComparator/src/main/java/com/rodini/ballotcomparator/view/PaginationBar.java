@@ -157,7 +157,10 @@ public class PaginationBar extends Composite {
     }
 
     public void setCurrentPage(int page) {
-        goToPage(page);
+    	currentPage = page;
+    	updateControls();
+    	// below triggers another (undesirable) DOCX load.
+        // goToPage(page);
     }
 
     public int getCurrentPage() {
